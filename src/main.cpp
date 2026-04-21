@@ -5,14 +5,9 @@
 #include <RadioLib.h>
 #include <algorithm>
 
-// ==========================================
-// CONFIGURATION & FLAGS (Points 8.1 & 8.2)
-// ==========================================
-// Point 8.1: Select input signal (1, 2, or 3)
-#define SIGNAL_MODE 2
-
-// Point 8.2: 1 = Run Z-Score/Hampel benchmark in background | 0 = Disable
-#define RUN_BONUS_8_2 1    
+// CONFIGURATION
+#define SIGNAL_MODE 2       // 1,2,3 to test the three different signals   
+#define RUN_BONUS_8_2 1     // 1 to do the bonus part, else 0
 
 #define INITIAL_SAMPLING_HZ 100
 #define SAMPLES             128
@@ -36,9 +31,7 @@ uint8_t appKey[] = { 0xE0, 0x9A, 0x93, 0xC8, 0xAE, 0x12, 0x13, 0x47, 0x75, 0x8F,
 #define LORA_RST 12
 #define LORA_BUSY 13
 
-// ==========================================
 // STRUCTURES & QUEUES
-// ==========================================
 struct SensorSample {
     float rawValue;
     unsigned long timestamp;
@@ -65,9 +58,7 @@ double vReal[SAMPLES], vImag[SAMPLES];
 ArduinoFFT<double> FFT = ArduinoFFT<double>(vReal, vImag, SAMPLES, INITIAL_SAMPLING_HZ);
 
 
-// ==========================================
-// MATH UTILITIES (For Bonus)
-// ==========================================
+// UTILS for bonus
 float getGaussianNoise(float mu, float sigma) {
     float u1 = max(0.0001f, (float)random(10000) / 10000.0f);
     float u2 = max(0.0001f, (float)random(10000) / 10000.0f);
@@ -97,9 +88,7 @@ double getDominantFreq(float* input_signal, int freq) {
 }
 
 
-// ==========================================
 // TASK: MAX FREQUENCY BENCHMARK
-// ==========================================
 void TaskMaxFreqBenchmark(void *pvParameters) {
     Serial.println("\n[MAX_FREQ] Starting ADC Test (100,000 samples)...");
     unsigned long start = micros();
@@ -111,9 +100,7 @@ void TaskMaxFreqBenchmark(void *pvParameters) {
 }
 
 
-// ==========================================
-// TASK: POINT 8.2 (BONUS ANOMALY SWEEP)
-// ==========================================
+// TASK BONUS
 #if RUN_BONUS_8_2 == 1
 void TaskBonusSweep(void *pvParameters) {
     float probs[] = {0.01, 0.05, 0.10};
@@ -217,9 +204,7 @@ void TaskBonusSweep(void *pvParameters) {
 #endif
 
 
-// ==========================================
-// TASK: MAIN SAMPLING (Point 8.1)
-// ==========================================
+// TASK SAMPLING
 void TaskSample(void *pvParameters) {
     TickType_t xLastWakeTime = xTaskGetTickCount();
     for (;;) {
@@ -241,9 +226,7 @@ void TaskSample(void *pvParameters) {
 }
 
 
-// ==========================================
-// TASK: MAIN FFT & ANALYSIS
-// ==========================================
+// TASK FFT & ANALYSIS
 void TaskAnalyze(void *pvParameters) {
     float windowSum = 0; int windowCount = 0;
     unsigned long windowStart = millis();
@@ -287,9 +270,7 @@ void TaskAnalyze(void *pvParameters) {
 }
 
 
-// ==========================================
-// TASK: CLOUD/EDGE TRANSMISSION
-// ==========================================
+// TASK CLOUD/EDGE TRANSMISSION
 void TaskTransmit(void *pvParameters) {
     mqtt.setServer(mqtt_server, 1883);
 
@@ -319,8 +300,6 @@ void TaskTransmit(void *pvParameters) {
             
             if (WiFi.status() == WL_CONNECTED) {
                 if (!mqtt.connected()) mqtt.connect("HeltecTarget");
-                
-                // Essential for keeping the MQTT connection alive
                 mqtt.loop(); 
 
                 char msg[16]; sprintf(msg, "%.2f", agg.average);
@@ -346,18 +325,13 @@ void TaskTransmit(void *pvParameters) {
                 }
             }
             Serial.println("--------------------------------------------------\n");
-            
-            // THE FIX: Force a context switch to feed the Watchdog timer
-            // This prevents the queue-drain from starving the CPU.
             vTaskDelay(pdMS_TO_TICKS(50));
         }
     }
 }
 
 
-// ==========================================
 // SETUP & LOOP
-// ==========================================
 void setup() {
     Serial.begin(115200);
     pinMode(36, OUTPUT); digitalWrite(36, LOW); 
