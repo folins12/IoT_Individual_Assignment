@@ -8,7 +8,7 @@
 
 // CONFIGURATION
 #define SIGNAL_MODE 2       // 1 (Low), 2 (Complex), 3 (High)
-#define RUN_BONUS_8_2 1     // 1 to run anomaly sweep in background
+#define RUN_BONUS_8_2 0     // 1 to run bonus part
 #define INITIAL_SAMPLING_HZ 100
 #define SAMPLES             128
 #define WINDOW_MS           5000
@@ -22,7 +22,7 @@
 #define LORA_RST 12
 #define LORA_BUSY 13
 
-// STRUCTURES & QUEUES
+// STRUCTURES
 struct SensorSample {
     float rawValue;
     unsigned long timestamp;
@@ -50,6 +50,8 @@ PubSubClient mqtt(espClient);
 double vReal[SAMPLES];
 double vImag[SAMPLES];
 
+// ----------------------- TASKS -----------------------------
+
 // TASK: SAMPLING
 void TaskSample(void *pvParameters) {
     TickType_t xLastWakeTime = xTaskGetTickCount();
@@ -73,7 +75,7 @@ void TaskSample(void *pvParameters) {
     }
 }
 
-// TASK: FFT & ANALYSIS (Decoupled Sliding Logic)
+// TASK: FFT & ANALYSIS
 void TaskAnalyze(void *pvParameters) {
     float windowSum = 0; 
     int windowCount = 0;
@@ -131,7 +133,7 @@ void TaskAnalyze(void *pvParameters) {
     }
 }
 
-// TASK: CLOUD & EDGE TRANSMISSION
+// TASK: MQTT & LoRa TRANSMISSION
 void TaskTransmit(void *pvParameters) {
     mqtt.setServer(mqtt_server, 1883);
 
@@ -161,7 +163,6 @@ void TaskTransmit(void *pvParameters) {
 
             loraDutyCycleCount++;
 
-            // PREVENT LATENCY: Only retry the blocking LoRa Join once every 30 seconds (when the duty cycle allows sending anyway)
             if (!loraActivated && (loraDutyCycleCount % 6 == 0)) {
                 if (node.activateOTAA() == RADIOLIB_ERR_NONE) {
                     loraActivated = true;

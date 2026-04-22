@@ -4,7 +4,7 @@
 
 #define SAMPLES 128
 
-// Local utility for the bonus task to calculate FFT peaks
+// UTILS
 double getLocalDominantFreq(float* input_signal, int freq) {
     double tempReal[SAMPLES], tempImag[SAMPLES];
     for (int i = 0; i < SAMPLES; i++) {
@@ -39,8 +39,7 @@ void TaskBonusSweep(void *pvParameters) {
     
     float clean_sig[SAMPLES], raw_sig[SAMPLES], filt_sig[SAMPLES];
     bool is_anom[SAMPLES]; 
-
-    vTaskDelay(pdMS_TO_TICKS(15000)); // Wait for main system to boot
+    vTaskDelay(pdMS_TO_TICKS(15000)); 
 
     for(;;) {
         for (float P : probs) {
@@ -52,27 +51,38 @@ void TaskBonusSweep(void *pvParameters) {
                     for (int i = 0; i < SAMPLES; i++) {
                         float t = i / 100.0; 
                         
-                        // Base signal (Mode 2)
+                        // signal (Mode 2)
                         clean_sig[i] = 3.0 * sin(2 * PI * 4 * t) + 1.5 * sin(2 * PI * 8 * t);
                         float noise = getGaussianNoise(0.0, 0.2);
                         
                         // Anomaly injection
                         is_anom[i] = (random(10000) < (P * 10000));
                         
-                        float spike = is_anom[i] ? (random(500, 1500) / 100.0 * (random(2) ? 1 : -1)) : 0;
+                        float spike;
+                        if (is_anom[i]) {
+                            float value = random(500, 1500) / 100.0;
+                            if (random(2)) {
+                                spike = value;
+                            } else {
+                                spike = -value;
+                            }
+                        } else {
+                            spike = 0;
+                        }
                         
                         raw_sig[i] = clean_sig[i] + noise + spike;
                         if(is_anom[i]) total_anomalies++;
                     }
 
-                    // Calculate Unfiltered Peak
+                    // ------------------------------------ UNFILTERDE ------------------------------------
                     double peak_unfiltered = getLocalDominantFreq(raw_sig, 100);
 
                     Serial.println("\n[BONUS 8.2] -------------------------------------");
                     Serial.printf("Filter Benchmark | Prob: %.2f | Window: %d\n", P, W);
                     Serial.printf("> Unfiltered Peak : %5.2f Hz\n", peak_unfiltered);
 
-                    // Z-SCORE
+
+                    // ------------------------------------ Z-SCORE FILTrE ------------------------------------
                     int z_tp = 0, z_fp = 0;
                     unsigned long z_start = micros();
                     for (int i = 0; i < SAMPLES; i++) {
@@ -101,10 +111,10 @@ void TaskBonusSweep(void *pvParameters) {
                     float z_tpr = total_anomalies > 0 ? (float)z_tp / total_anomalies : 0;
                     float z_fpr = (SAMPLES - total_anomalies) > 0 ? (float)z_fp / (SAMPLES - total_anomalies) : 0;
                     
-                    Serial.printf("> Z-Score Filter  : Exec %4lu us | TPR %.2f | FPR %.2f | MER %5.1f%% | Peak %5.2f Hz\n", 
-                                  z_time, z_tpr, z_fpr, z_mer, peak_z);
+                    Serial.printf("> Z-Score Filter  : Exec %4lu us | TPR %.2f | FPR %.2f | MER %5.1f%% | Peak %5.2f Hz\n", z_time, z_tpr, z_fpr, z_mer, peak_z);
 
-                    // HAMPEL FILTER
+
+                    // ------------------------------------ HAMPEL FILTER ------------------------------------
                     int h_tp = 0, h_fp = 0;
                     unsigned long h_start = micros();
                     for (int i = 0; i < SAMPLES; i++) {
@@ -134,8 +144,7 @@ void TaskBonusSweep(void *pvParameters) {
                     float h_tpr = total_anomalies > 0 ? (float)h_tp / total_anomalies : 0;
                     float h_fpr = (SAMPLES - total_anomalies) > 0 ? (float)h_fp / (SAMPLES - total_anomalies) : 0;
                     
-                    Serial.printf("> Hampel Filter   : Exec %4lu us | TPR %.2f | FPR %.2f | MER %5.1f%% | Peak %5.2f Hz\n", 
-                                  h_time, h_tpr, h_fpr, h_mer, peak_h);
+                    Serial.printf("> Hampel Filter   : Exec %4lu us | TPR %.2f | FPR %.2f | MER %5.1f%% | Peak %5.2f Hz\n", h_time, h_tpr, h_fpr, h_mer, peak_h);
 
                     vTaskDelay(pdMS_TO_TICKS(1500));
                 }
