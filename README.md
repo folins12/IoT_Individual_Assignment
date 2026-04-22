@@ -38,7 +38,7 @@ This section provides an empirical analysis of the IoT adaptive system. All data
 
 ## 1. Physical Hardware Benchmarking
 Before initializing the FreeRTOS scheduler, the system established its physical ceiling through a blocking ADC loop in the `setup()` phase.
-* **Maximum Raw Sampling Rate:** ~16,164 Hz.
+* **Maximum Raw Sampling Rate:** ~16,000 Hz.
 * **Assignment Baseline:** 100 Hz (Initial over-sampled state).
 
 ## 2. Dynamic Frequency Adaptation (FFT)
@@ -67,7 +67,7 @@ Logs from the INA219 sensor reveal a direct correlation between system tasks and
 | **Boot / Oversampled**| **~60.90 mA** | ~225 mW | CPU highly active at 100Hz sensing, initial boot. |
 | **Idle / Adaptive** | **~47.50 mA** | ~175 mW | CPU active at low freq (11Hz), radios in sleep. |
 | **WiFi / MQTT TX** | **~105.80 mA** | ~391 mW | Periodic spike every 5s during WiFi radio wake-up. |
-| **LoRaWAN Uplink** | **~107.40 mA** | ~397 mW | SX1262 power amplifier active for long-range TX. |
+| **LoRaWAN Uplink** | **~107.40 mA** | ~397 mW | Long-range TX. |
 
 
 ### 4.1 Interpreting Power Consumption for Bonus Filters
@@ -75,16 +75,14 @@ In the Bonus implementation (`RUN_BONUS_8_2 = 1`), the Unfiltered, Z-Score, and 
 
 **How to evaluate their energy impact:**
 Since the filters are heavily optimized for the ESP32's hardware FPU, they do not cause massive instantaneous current spikes. Instead, their energy cost is measured in **CPU execution time** (microseconds). 
-* Z-Score takes **~320µs** per batch.
-* Hampel takes **~650µs** per batch. 
-The true energy cost is the amount of time the processor is forced to stay awake computing these arrays instead of yielding to the FreeRTOS `Idle` task.
+* Z-Score takes **~320µs - ~650µs** per batch.
+* Hampel takes **~660µs - ~3600µs** per batch. 
+The true energy cost is the amount of time the processor is forced to stay awake computing these arrays instead of yielding to the FreeRTOS Idle task.
 
 ---
 
 ## 5. Anomaly Filtering Benchmark (Bonus Part 8.2)
 The system was tested against 9 unique configurations to characterize the trade-off between statistical accuracy and computational effort.
-
-### 5.1 Results Table (Average Metrics from Logs)
 
 ### 5.1 Results Table (Average Metrics from Logs)
 
@@ -111,12 +109,12 @@ The system was tested against 9 unique configurations to characterize the trade-
 
 
 ### 5.2 Comparative Analysis
-* **Z-Score Masking Effect:** At small windows ($W=5$), the Z-score consistently fails, yielding **0.0% MER** regardless of the contamination rate. The injected outliers ($+/- 15$) artificially inflate the local standard deviation, expanding the detection threshold so widely that the anomalies themselves are masked as "normal."
-* **Hampel Resilience:** The Median-based Hampel filter successfully ignores outlier magnitude. It peaks at a **63.1% MER** at 10% contamination with a small window ($W=5$), demonstrating strong robustness against high-magnitude transients where Z-Score fails. 
+* **Z-Score:** At small windows ($W=5$), the Z-score consistently fails, yielding **0.0% MER** regardless of the contamination rate. The injected outliers ($+/- 15$) artificially inflate the local standard deviation, expanding the detection threshold so widely that the anomalies themselves are masked as normal.
+* **Hampel:** The Median-based Hampel filter successfully ignores outlier magnitude. It peaks at a **63.1% MER** at 10% contamination with a small window ($W=5$), demonstrating strong robustness against high-magnitude transients where Z-Score fails. 
 * **Window Size Trade-off:**
     * **Latency:** Execution time scales linearly with window size for the Hampel filter. Moving from $W=5$ (~660 µs) to $W=31$ (~3.6 ms) introduces significant processing overhead, eating into RTOS idle time. Z-Score remains highly efficient (~330 µs) across window sizes due to FPU optimization, but lacks accuracy.
     * **Accuracy vs. Density:** For Hampel, larger windows perform poorly at higher contamination rates. At 10% probability, increasing $W$ from 5 to 31 drops the TPR from 0.70 down to 0.38. A wider window is more likely to encompass multiple anomalies, skewing the median estimate itself.
-* **FFT Spectral Impact:** Unfiltered anomalies act as Dirac impulses, distributing their energy across the frequency spectrum and raising the broadband noise floor. While the primary signal peak (~4.00 Hz) usually remains dominant, the signal-to-noise ratio is severely degraded. Hampel filtering effectively restores the clean spectral peak, preventing the system's adaptive logic from being triggered by high-frequency impulse noise.
+
 
 ---
 
@@ -126,30 +124,26 @@ The system was tested against 9 unique configurations to characterize the trade-
 
 ## Prompts Issued
 
-1. **FreeRTOS Queue Structuring:**
-   "I have two FreeRTOS tasks on an ESP32. Task 1 samples a simulated sine wave at 100Hz. Task 2 runs an FFT on 128 samples. What is the safest way to pass float data between these tasks without blocking the high-frequency sampling loop? Show me the QueueHandle_t setup."
-
-2. **LoRaWAN RadioLib Migration:**
+1. **LoRaWAN:**
    "I'm using RadioLib v6.6.0 on a Heltec V3 ESP32-S3. TTN is giving me an error saying 'devnonce has already been used'. How do I correctly structure the `node.beginOTAA` and `activateOTAA` loops to handle this, and how should my keys be formatted (MSB or LSB)?"
 
-3. **FFT Library Implementation:**
-   "Using the `arduinoFFT` library (v2), I have an array of 128 floats. I need to apply a Hamming window and compute the forward FFT to find the dominant frequency peak. Provide the exact syntax for `complexToMagnitude` and `majorPeak`."
-
-4. **C++ Algorithm Optimization (Hampel):**
-   "I need to write a Hampel filter in C++ for an ESP32. It calculates the median of a sliding window of 5 items, and then the Median Absolute Deviation (MAD). What is the most memory-efficient way to sort a 5-element float array without using the heap?"
-
-5. **ESP32 FPU Math Bottleneck:**
+2. **ESP32 FPU Math Bottleneck:**
    "My Z-Score filter is running slower than my Hampel filter on the ESP32, which doesn't make sense since sorting should be O(n log n). I am using the `pow(val, 2)` function for the variance. Is `pow()` heavily unoptimized on the ESP32? What's the alternative?"
 
-6. **FreeRTOS Deadlock Debugging:**
-   "My ESP32 keeps restarting and throwing this error: `Task watchdog got triggered. - IDLE0 (CPU 0)`. My MQTT transmit task is pinned to Core 0. Is the MQTT connection blocking the internal Wi-Fi driver?"
+3. **Signal Processing Theory:**
+   "If I have a clean 4 Hz sine wave and I inject a single large-magnitude spike (e.g. value of 15) into an array of 128 samples, will the dominant frequency in the FFT change?"
 
-7. **Signal Processing Theory:**
-   "If I have a clean 4 Hz sine wave and I inject a single large-magnitude spike (e.g. value of 15) into an array of 128 samples, will the dominant frequency in the FFT change? Or does a single spike act like a Dirac delta and just raise the noise floor?"
+4. **Choosing the Right Edge MQTT Broker:**
+   "I need a public MQTT broker for testing an IoT university assignment. I am using an ESP32 with the PubSubClient library. What are the best public options. Why is HiveMQ a good choice for reliable edge communication?"
 
-8. **Power Calculation Context:**
-   "Calculate the true power in mW for an INA219 reading of 47mA if the power source is actually a 3.7V battery instead of a 5V USB rail."
+### 5.1 Opportunities and Limitations
 
-## Opportunities and Limitations
-* **Opportunities:** The LLM was exceptional at explaining the inner workings of the ESP32 hardware, specifically pointing out that the Wi-Fi drivers live on Core 0 (causing watchdog resets if blocked) and that `pow()` invokes heavy Taylor series math instead of simple FPU multiplication. 
-* **Limitations:** The LLM frequently hallucinated syntax for third-party libraries (especially `arduinoFFT` v2 and `RadioLib`), providing code designed for older versions that wouldn't compile. Critical thinking and cross-referencing with the official library documentation were absolutely necessary to implement the LoRaWAN join process correctly.
+Based on the specific prompts issued during development, the following observations were made regarding the LLM's capabilities as an engineering co-pilot:
+
+* **Opportunities:**
+  * **Algorithm & FPU Optimization:** It successfully identified non-obvious mathematical bottlenecks. For instance, it pointed out that using `pow(val, 2)` for the Z-Score variance invokes heavy math library computations. Suggesting simple multiplication instead allowed the system to leverage the ESP32's hardware FPU, drastically reducing the filter's execution time.
+  * **Theoretical Clarifications:** It provided solid theoretical explanations for Digital Signal Processing, correctly explaining that a sparse anomaly spike acts as a Dirac delta in the time domain, raising the FFT broadband noise floor rather than shifting the dominant frequency peak.
+  * **Architectural Decisions:** It efficiently compared Edge MQTT brokers, accurately highlighting HiveMQ's suitability for a frictionless, non-TLS embedded testing environment.
+
+* **Limitations:**
+  * **Inability to Resolve Non Coding Errors:** Despite multiple iterations, the LLM was entirely unable to solve the TTN `-1101 (DevNonce already used)` error. 

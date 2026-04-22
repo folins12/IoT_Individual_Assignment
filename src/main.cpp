@@ -65,7 +65,7 @@ void TaskSample(void *pvParameters) {
         #if SIGNAL_MODE == 1
             s.rawValue = 5.0 * sin(2 * PI * 1 * t);
         #elif SIGNAL_MODE == 2
-            s.rawValue = 3.0 * sin(2 * PI * 4 * t) + 1.5 * sin(2 * PI * 8 * t);
+            s.rawValue = 3.0 * sin(2 * PI * 4 * t) + 1.5 * sin(2 * PI * 3 * t);
         #elif SIGNAL_MODE == 3
             s.rawValue = 2.0 * sin(2 * PI * 35 * t);
         #endif
