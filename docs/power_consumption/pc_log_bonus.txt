@@ -1,0 +1,286 @@
+========================================
+--- INA219 Monitor Station Booting ---
+========================================
+[INIT] INA219 Power Sensor Connected.
+
+[INA219] --- Energy Consumption Report ---
+> Current: 60.40 mA
+> Power  : 52.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 45.10 mA
+> Power  : 40.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 45.10 mA
+> Power  : 40.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 45.40 mA
+> Power  : 40.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 45.20 mA
+> Power  : 40.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 47.70 mA
+> Power  : 40.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 44.90 mA
+> Power  : 40.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 61.30 mA
+> Power  : 56.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 45.10 mA
+> Power  : 40.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 62.20 mA
+> Power  : 56.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 44.90 mA
+> Power  : 40.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 59.70 mA
+> Power  : 56.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 107.20 mA
+> Power  : 96.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 106.30 mA
+> Power  : 96.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 107.60 mA
+> Power  : 96.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 106.30 mA
+> Power  : 96.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 106.30 mA
+> Power  : 96.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 106.20 mA
+> Power  : 92.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 107.20 mA
+> Power  : 96.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 107.10 mA
+> Power  : 96.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 107.70 mA
+> Power  : 96.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 106.40 mA
+> Power  : 96.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 107.00 mA
+> Power  : 96.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 107.20 mA
+> Power  : 96.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 107.00 mA
+> Power  : 96.00 mW
+------------------------------------------
+ *  Terminal will be reused by tasks, press any key to close it. 
+
+ *  Executing task: C:\Users\afoli\.platformio\penv\Scripts\platformio.exe device monitor --environment monitor 
+
+--- Terminal on COM12 | 115200 8-N-1
+--- Available filters and text transformations: debug, default, direct, esp32_exception_decoder, hexlify, log2file, nocontrol, printable, send_on_enter, time
+--- More details at https://bit.ly/pio-monitor-filters
+--- Quit: Ctrl+C | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H
+
+========================================
+--- INA219 Monitor Station Booting ---
+========================================
+[INIT] INA219 Power Sensor Connected.
+
+[INA219] --- Energy Consumption Report ---
+> Current: 55.00 mA
+> Power  : 50.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 38.50 mA
+> Power  : 32.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 55.20 mA
+> Power  : 50.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 38.70 mA
+> Power  : 32.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 55.40 mA
+> Power  : 50.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 38.50 mA
+> Power  : 32.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 38.30 mA
+> Power  : 32.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 38.50 mA
+> Power  : 32.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 38.40 mA
+> Power  : 32.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 54.60 mA
+> Power  : 50.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 38.40 mA
+> Power  : 32.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 55.00 mA
+> Power  : 50.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 38.40 mA
+> Power  : 32.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 54.90 mA
+> Power  : 50.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 38.10 mA
+> Power  : 32.00 mW
+------------------------------------------
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0x8 (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce3808,len:0x4bc
+load:0x403c9700,len:0xbd8
+load:0x403cc700,len:0x2a0c
+entry 0x403c98d0
+
+========================================
+--- INA219 Monitor Station Booting ---
+========================================
+[INIT] INA219 Power Sensor Connected.
+
+[INA219] --- Energy Consumption Report ---
+> Current: 39.30 mA
+> Power  : 36.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 55.70 mA
+> Power  : 50.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 41.90 mA
+> Power  : 36.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 41.80 mA
+> Power  : 36.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 41.80 mA
+> Power  : 36.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 42.10 mA
+> Power  : 36.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 41.70 mA
+> Power  : 36.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 100.30 mA
+> Power  : 88.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 41.50 mA
+> Power  : 36.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 100.30 mA
+> Power  : 88.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 38.40 mA
+> Power  : 32.00 mW
+------------------------------------------

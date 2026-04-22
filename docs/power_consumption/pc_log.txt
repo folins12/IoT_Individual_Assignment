@@ -1,0 +1,94 @@
+========================================
+--- INA219 Monitor Station Booting ---
+========================================
+[INIT] INA219 Power Sensor Connected.
+
+[INA219] --- Energy Consumption Report ---
+> Current: 60.90 mA
+> Power  : 52.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 47.60 mA
+> Power  : 42.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 47.50 mA
+> Power  : 42.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 47.60 mA
+> Power  : 42.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 47.50 mA
+> Power  : 42.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 47.20 mA
+> Power  : 42.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 47.70 mA
+> Power  : 42.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 105.80 mA
+> Power  : 92.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 47.80 mA
+> Power  : 42.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 47.40 mA
+> Power  : 42.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 47.60 mA
+> Power  : 42.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 47.50 mA
+> Power  : 42.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 107.40 mA
+> Power  : 96.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 47.80 mA
+> Power  : 42.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 47.40 mA
+> Power  : 42.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 47.60 mA
+> Power  : 42.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 47.40 mA
+> Power  : 42.00 mW
+------------------------------------------
+
+[INA219] --- Energy Consumption Report ---
+> Current: 105.90 mA
+> Power  : 92.00 mW
+------------------------------------------
