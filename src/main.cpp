@@ -4,23 +4,14 @@
 #include <PubSubClient.h>
 #include <RadioLib.h>
 #include "bonus.h"
+#include "credentials.h"
 
 // CONFIGURATION
 #define SIGNAL_MODE 2       // 1 (Low), 2 (Complex), 3 (High)
 #define RUN_BONUS_8_2 1     // 1 to run anomaly sweep in background
-
 #define INITIAL_SAMPLING_HZ 100
 #define SAMPLES             128
 #define WINDOW_MS           5000
-
-// CREDENTIALS 
-const char* ssid = "iPhone di Michele";
-const char* password = "Michele4!";
-const char* mqtt_server = "broker.hivemq.com";
-
-uint64_t joinEUI = 0x0000000000000000;
-uint64_t devEUI  = 0x70B3D57ED0076985; 
-uint8_t appKey[] = { 0xE0, 0x9A, 0x93, 0xC8, 0xAE, 0x12, 0x13, 0x47, 0x75, 0x8F, 0x38, 0xCA, 0x40, 0xA0, 0xDA, 0xFD };
 
 // HELTEC V3 LORA PINS
 #define LORA_SCK 9

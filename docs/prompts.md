@@ -1,20 +1,30 @@
-# Point 8: Use of an LLM
+# LLM Usage Report & Prompts
+
+During the development of this project, Google Gemini was utilized as an advanced documentation retrieval tool and algorithmic brainstorming partner. 
 
 ## Prompts Issued
 
-1. **(RadioLib OTAA Setup):** *"I am using the RadioLib library version 6.6.0 on an ESP32. I need to connect to The Things Network using OTAA. TTN provides me with a joinEUI, devEUI, and AppKey. Can you show me the exact syntax for initializing the `LoRaWANNode` and calling `beginOTAA` with these keys?"*
-2. **(FreeRTOS Queues):** *"I have a FreeRTOS architecture on an ESP32. Task 1 samples a sensor at 100Hz. Task 2 computes an FFT and an average every 5 seconds. What is the most efficient way to pass the high-frequency float data from Task 1 to Task 2 without causing Queue overflows or blocking the 100Hz sampling loop?"*
-3. **(arduinoFFT Adaptation):** *"I am using the `arduinoFFT` library (version 2.0+). I have an array of 128 samples. How do I apply a Hamming window and compute the forward FFT to find the major peak frequency?"*
-4. **(C++ DSP Optimization):** *"I am implementing a Hampel filter on an ESP32. I need to find the median of a sliding window of size 5, 15, and 31. What is the fastest way in C++ to find the median of a small local float array without dynamically allocating memory on the heap?"*
+1. **FreeRTOS Queue Structuring:**
+   > *"I have two FreeRTOS tasks on an ESP32. Task 1 samples a simulated sine wave at 100Hz. Task 2 runs an FFT on 128 samples. What is the safest way to pass float data between these tasks without blocking the high-frequency sampling loop? Show me the QueueHandle_t setup."*
 
-## Commentary on LLM Quality, Opportunities, and Limitations
+2. **LoRaWAN RadioLib Migration:**
+   > *"I'm using RadioLib v6.6.0 on a Heltec V3 ESP32-S3. TTN is giving me an error saying 'devnonce has already been used'. How do I correctly structure the `node.beginOTAA` and `activateOTAA` loops to handle this, and how should my keys be formatted (MSB or LSB)?"*
 
-**Quality of Assistance:**
-The LLM was exceptionally helpful in bridging the gap between outdated online tutorials and modern library versions (especially for `RadioLib` and `arduinoFFT`). It provided rapid, context-aware boilerplate code for FreeRTOS queues, which drastically reduced the time spent wrestling with syntax errors.
+3. **FFT Library Implementation:**
+   > *"Using the `arduinoFFT` library (v2), I have an array of 128 floats. I need to apply a Hamming window and compute the forward FFT to find the dominant frequency peak. Provide the exact syntax for `complexToMagnitude` and `majorPeak`."*
 
-**Opportunities:**
-The greatest advantage was mathematical and algorithmic brainstorming. When implementing the Hampel filter, the LLM suggested using `std::sort` on small, statically allocated arrays instead of complex heap-based median algorithms. This insight made the Hampel filter surprisingly fast and safe for embedded environments.
+4. **C++ Algorithm Optimization (Hampel):**
+   > *"I need to write a Hampel filter in C++ for an ESP32. It calculates the median of a sliding window of 5 items, and then the Median Absolute Deviation (MAD). What is the most memory-efficient way to sort a 5-element float array without using the heap?"*
 
-**Limitations:**
-1. **Contextual Hardware Blindness:** When asked to optimize the Z-Score filter, the LLM suggested standard mathematical formulas using `pow()`. It failed to warn me that calling `pow()` repeatedly on an ESP32 without an FPU optimized for that specific instruction is computationally expensive. I had to discover through empirical logging that my Hampel filter (sorting) was actually executing faster than the Z-Score filter (math).
-2. **Library Version Hallucinations:** The LLM frequently hallucinated older syntaxes for the `RadioLib` LoRaWAN implementation. TTN changed how keys are handled, and RadioLib updated its class structures. The LLM provided confidently incorrect code that wouldn't compile, forcing me to rely heavily on the official library source code and examples to fix the OTAA join process.
+5. **ESP32 FPU Math Bottleneck:**
+   > *"My Z-Score filter is running slower than my Hampel filter on the ESP32, which doesn't make sense since sorting should be O(n log n). I am using the `pow(val, 2)` function for the variance. Is `pow()` heavily unoptimized on the ESP32? What's the alternative?"*
+
+6. **FreeRTOS Deadlock Debugging:**
+   > *"My ESP32 keeps restarting and throwing this error: `Task watchdog got triggered. - IDLE0 (CPU 0)`. My MQTT transmit task is pinned to Core 0. Is the MQTT connection blocking the internal Wi-Fi driver?"*
+
+7. **Signal Processing Theory:**
+   > *"If I have a clean 4 Hz sine wave and I inject a single large-magnitude spike (e.g. value of 15) into an array of 128 samples, will the dominant frequency in the FFT change? Or does a single spike act like a Dirac delta and just raise the noise floor?"*
+
+## Opportunities and Limitations
+* **Opportunities:** The LLM was exceptional at explaining the inner workings of the ESP32 hardware, specifically pointing out that the Wi-Fi drivers live on Core 0 (causing watchdog resets if blocked) and that `pow()` invokes heavy Taylor series math instead of simple FPU multiplication. 
+* **Limitations:** The LLM frequently hallucinated syntax for third-party libraries (especially `arduinoFFT` v2 and `RadioLib`), providing code designed for older versions that wouldn't compile. Critical thinking and cross-referencing with the official library documentation were absolutely necessary to implement the LoRaWAN join process correctly.
