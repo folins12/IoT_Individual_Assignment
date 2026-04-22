@@ -86,56 +86,69 @@ The system was tested against 9 unique configurations to characterize the trade-
 
 ### 5.1 Results Table (Average Metrics from Logs)
 
-| Probability ($P$) | Window ($W$) | Z-Score MER | Hampel MER | Hampel TPR | Hampel Exec Time |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **0.01 (1%)** | **5** | 0.0% | **17.1%** | 0.40 | ~660 µs |
-| 0.01 (1%) | 15 | 21.6% | 29.7% | 0.80 | ~2,420 µs |
-| 0.01 (1%) | 31 | 16.5% | 22.0% | 0.58 | ~3,630 µs |
-| **0.05 (5%)** | **5** | 0.0% | **62.9%** | 0.82 | ~655 µs |
-| 0.05 (5%) | 15 | 32.7% | 54.9% | 0.75 | ~2,360 µs |
-| 0.05 (5%) | 31 | 28.3% | 40.7% | 0.56 | ~3,590 µs |
-| **0.10 (10%)** | **5** | 0.0% | **63.1%** | 0.70 | ~665 µs |
-| 0.10 (10%) | 15 | 13.0% | 48.3% | 0.55 | ~2,300 µs |
-| 0.10 (10%) | 31 | 19.1% | 36.4% | 0.38 | ~3,570 µs |
+### 5.1 Results Table (Average Metrics from Logs)
+
+| Contamination ($P$) | Window ($W$) | Filter Type | TPR | FPR | MER | Exec Time (µs) | FFT Peak (Hz) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **0.01 (1%)** | **5** | Z-Score | 0.00 | 0.00 | 0.0% | ~321 µs | 4.02 Hz |
+| | | Hampel | **0.40** | 0.00 | **17.1%** | ~660 µs | 4.00 Hz |
+| **0.01 (1%)** | **15** | Z-Score | 0.33 | 0.00 | 21.6% | ~325 µs | 4.02 Hz |
+| | | Hampel | **0.80** | 0.00 | **29.7%** | ~2,420 µs | 4.02 Hz |
+| **0.01 (1%)** | **31** | Z-Score | 0.25 | 0.00 | 16.5% | ~330 µs | 4.08 Hz |
+| | | Hampel | **0.58** | 0.00 | **22.0%** | ~3,630 µs | 4.04 Hz |
+| **0.05 (5%)** | **5** | Z-Score | 0.00 | 0.00 | 0.0% | ~325 µs | 4.04 Hz |
+| | | Hampel | **0.82** | 0.00 | **62.9%** | ~655 µs | 4.02 Hz |
+| **0.05 (5%)** | **15** | Z-Score | 0.50 | 0.00 | 32.7% | ~328 µs | 4.01 Hz |
+| | | Hampel | **0.75** | 0.00 | **54.9%** | ~2,360 µs | 4.01 Hz |
+| **0.05 (5%)** | **31** | Z-Score | 0.40 | 0.00 | 28.3% | ~335 µs | 4.05 Hz |
+| | | Hampel | **0.56** | 0.00 | **40.7%** | ~3,590 µs | 4.04 Hz |
+| **0.10 (10%)** | **5** | Z-Score | 0.00 | 0.00 | 0.0% | ~328 µs | 4.10 Hz |
+| | | Hampel | **0.70** | 0.00 | **63.1%** | ~665 µs | 4.03 Hz |
+| **0.10 (10%)** | **15** | Z-Score | 0.17 | 0.00 | 13.0% | ~330 µs | 4.10 Hz |
+| | | Hampel | **0.55** | 0.00 | **48.3%** | ~2,300 µs | 4.01 Hz |
+| **0.10 (10%)** | **31** | Z-Score | 0.15 | 0.00 | 19.1% | ~650 µs* | 4.15 Hz |
+| | | Hampel | **0.38** | 0.00 | **36.4%** | ~3,570 µs | 4.02 Hz |
+
 
 ### 5.2 Comparative Analysis
-* **Z-Score Masking Effect:** At small windows ($W=5$), the Z-score consistently achieves **0.0% MER**. Large outliers ($+/- 15$) inflate the Standard Deviation so much that the detection threshold moves beyond the anomalies themselves.
-* **Hampel Resilience:** The Median-based filter ignores outlier magnitude, maintaining a high **True Positive Rate (TPR)** and strong Mean Error Reduction (MER) at higher contamination levels.
-* **Window Size Trade-off:** * **Latency:** Computational time increases linearly with $W$ (from **~660µs** at $W=5$ to **~3.6ms** at $W=31$).
-    * **Accuracy:** Larger windows ($W=31$) perform worse as they are more likely to contain multiple anomalies, which eventually biases the median estimate and reduces MER.
-* **FFT Spectral Impact:** Unfiltered anomalies act as Dirac impulses, raising the broadband noise floor. While the dominant 4Hz peak remains visible, the signal-to-noise ratio is degraded. Hampel filtering restores the clean spectral peak, preventing the adaptive logic from being "tricked" by noise.
+* **Z-Score Masking Effect:** At small windows ($W=5$), the Z-score consistently fails, yielding **0.0% MER** regardless of the contamination rate. The injected outliers ($+/- 15$) artificially inflate the local standard deviation, expanding the detection threshold so widely that the anomalies themselves are masked as "normal."
+* **Hampel Resilience:** The Median-based Hampel filter successfully ignores outlier magnitude. It peaks at a **63.1% MER** at 10% contamination with a small window ($W=5$), demonstrating strong robustness against high-magnitude transients where Z-Score fails. 
+* **Window Size Trade-off:**
+    * **Latency:** Execution time scales linearly with window size for the Hampel filter. Moving from $W=5$ (~660 µs) to $W=31$ (~3.6 ms) introduces significant processing overhead, eating into RTOS idle time. Z-Score remains highly efficient (~330 µs) across window sizes due to FPU optimization, but lacks accuracy.
+    * **Accuracy vs. Density:** For Hampel, larger windows perform poorly at higher contamination rates. At 10% probability, increasing $W$ from 5 to 31 drops the TPR from 0.70 down to 0.38. A wider window is more likely to encompass multiple anomalies, skewing the median estimate itself.
+* **FFT Spectral Impact:** Unfiltered anomalies act as Dirac impulses, distributing their energy across the frequency spectrum and raising the broadband noise floor. While the primary signal peak (~4.00 Hz) usually remains dominant, the signal-to-noise ratio is severely degraded. Hampel filtering effectively restores the clean spectral peak, preventing the system's adaptive logic from being triggered by high-frequency impulse noise.
 
 ---
 
 # LLM Usage Report & Prompts
 
-During the development of this project, Google Gemini was utilized as an advanced documentation retrieval tool and algorithmic brainstorming partner. 
+
 
 ## Prompts Issued
 
 1. **FreeRTOS Queue Structuring:**
-   > *"I have two FreeRTOS tasks on an ESP32. Task 1 samples a simulated sine wave at 100Hz. Task 2 runs an FFT on 128 samples. What is the safest way to pass float data between these tasks without blocking the high-frequency sampling loop? Show me the QueueHandle_t setup."*
+   "I have two FreeRTOS tasks on an ESP32. Task 1 samples a simulated sine wave at 100Hz. Task 2 runs an FFT on 128 samples. What is the safest way to pass float data between these tasks without blocking the high-frequency sampling loop? Show me the QueueHandle_t setup."
 
 2. **LoRaWAN RadioLib Migration:**
-   > *"I'm using RadioLib v6.6.0 on a Heltec V3 ESP32-S3. TTN is giving me an error saying 'devnonce has already been used'. How do I correctly structure the `node.beginOTAA` and `activateOTAA` loops to handle this, and how should my keys be formatted (MSB or LSB)?"*
+   "I'm using RadioLib v6.6.0 on a Heltec V3 ESP32-S3. TTN is giving me an error saying 'devnonce has already been used'. How do I correctly structure the `node.beginOTAA` and `activateOTAA` loops to handle this, and how should my keys be formatted (MSB or LSB)?"
 
 3. **FFT Library Implementation:**
-   > *"Using the `arduinoFFT` library (v2), I have an array of 128 floats. I need to apply a Hamming window and compute the forward FFT to find the dominant frequency peak. Provide the exact syntax for `complexToMagnitude` and `majorPeak`."*
+   "Using the `arduinoFFT` library (v2), I have an array of 128 floats. I need to apply a Hamming window and compute the forward FFT to find the dominant frequency peak. Provide the exact syntax for `complexToMagnitude` and `majorPeak`."
 
 4. **C++ Algorithm Optimization (Hampel):**
-   > *"I need to write a Hampel filter in C++ for an ESP32. It calculates the median of a sliding window of 5 items, and then the Median Absolute Deviation (MAD). What is the most memory-efficient way to sort a 5-element float array without using the heap?"*
+   "I need to write a Hampel filter in C++ for an ESP32. It calculates the median of a sliding window of 5 items, and then the Median Absolute Deviation (MAD). What is the most memory-efficient way to sort a 5-element float array without using the heap?"
 
 5. **ESP32 FPU Math Bottleneck:**
-   > *"My Z-Score filter is running slower than my Hampel filter on the ESP32, which doesn't make sense since sorting should be O(n log n). I am using the `pow(val, 2)` function for the variance. Is `pow()` heavily unoptimized on the ESP32? What's the alternative?"*
+   "My Z-Score filter is running slower than my Hampel filter on the ESP32, which doesn't make sense since sorting should be O(n log n). I am using the `pow(val, 2)` function for the variance. Is `pow()` heavily unoptimized on the ESP32? What's the alternative?"
 
 6. **FreeRTOS Deadlock Debugging:**
-   > *"My ESP32 keeps restarting and throwing this error: `Task watchdog got triggered. - IDLE0 (CPU 0)`. My MQTT transmit task is pinned to Core 0. Is the MQTT connection blocking the internal Wi-Fi driver?"*
+   "My ESP32 keeps restarting and throwing this error: `Task watchdog got triggered. - IDLE0 (CPU 0)`. My MQTT transmit task is pinned to Core 0. Is the MQTT connection blocking the internal Wi-Fi driver?"
 
 7. **Signal Processing Theory:**
-   > *"If I have a clean 4 Hz sine wave and I inject a single large-magnitude spike (e.g. value of 15) into an array of 128 samples, will the dominant frequency in the FFT change? Or does a single spike act like a Dirac delta and just raise the noise floor?"*
+   "If I have a clean 4 Hz sine wave and I inject a single large-magnitude spike (e.g. value of 15) into an array of 128 samples, will the dominant frequency in the FFT change? Or does a single spike act like a Dirac delta and just raise the noise floor?"
 
 8. **Power Calculation Context:**
-   > *"Calculate the true power in mW for an INA219 reading of 47mA if the power source is actually a 3.7V battery instead of a 5V USB rail."*
+   "Calculate the true power in mW for an INA219 reading of 47mA if the power source is actually a 3.7V battery instead of a 5V USB rail."
 
 ## Opportunities and Limitations
 * **Opportunities:** The LLM was exceptional at explaining the inner workings of the ESP32 hardware, specifically pointing out that the Wi-Fi drivers live on Core 0 (causing watchdog resets if blocked) and that `pow()` invokes heavy Taylor series math instead of simple FPU multiplication. 

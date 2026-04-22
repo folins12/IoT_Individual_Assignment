@@ -877,15 +877,3 @@ Filter Benchmark | Prob: 0.10 | Window: 31
 > Unfiltered Peak :  4.08 Hz
 > Z-Score Filter  : Exec  663 us | TPR 0.13 | FPR 0.00 | MER  12.2% | Peak  4.07 Hz
 > Hampel Filter   : Exec 3628 us | TPR 0.40 | FPR 0.00 | MER  33.0% | Peak  4.00 Hz
-
-[BONUS 8.2] -------------------------------------
-Filter Benchmark | Prob: 0.01 | Window: 5
-> Unfiltered Peak :  4.01 Hz
-> Z-Score Filter  : Exec  321 us | TPR 0.00 | FPR 0.00 | MER   0.0% | Peak  4.01 Hz
-> Hampel Filter   : Exec  661 us | TPR 0.00 | FPR 0.00 | MER   0.0% | Peak  4.01 Hz
-
-[BONUS 8.2] -------------------------------------
-Filter Benchmark | Prob: 0.01 | Window: 5
-> Unfiltered Peak :  4.05 Hz
-> Z-Score Filter  : Exec  321 us | TPR 0.00 | FPR 0.00 | MER   0.0% | Peak  4.05 Hz
-> Hampel Filter   : Exec  657 us | TPR 1.00 | FPR 0.02 | MER  30.0% | Peak  4.01 Hz
